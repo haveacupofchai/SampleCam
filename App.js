@@ -7,18 +7,22 @@
  */
 
 import React, {Component} from 'react';
-import {Dimensions, Platform, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, Platform, StyleSheet, Text, View, FlatList} from 'react-native';
 import Camera from 'react-native-camera'
-
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
 
 type Props = {};
 export default class App extends Component<Props> {
+
+  state = {users: []}
+
+  componentDidMount() {
+    fetch('http://sampleserver.azurewebsites.net/users')
+      .then(res => res.json())
+      .then(users => this.setState({ users }))
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
   takePicture() {
     this.camera.capture()
@@ -38,10 +42,12 @@ export default class App extends Component<Props> {
        <Text style={styles.capture} onPress={this.takePicture.bind(this)}>
           [CAPTURE]
        </Text>
-</Camera>
-        <Text style={styles.welcome}>Test</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
+       </Camera>
+        <Text style={styles.instructions}>This app is also receiving!</Text>
+        <FlatList
+          data={this.state.users}
+          renderItem={({item}) => <Text>{item.id}, {item.username}</Text>}
+        />
       </View>
     );
   }
